@@ -1,10 +1,9 @@
-// CD Hub Whitelist & Blacklist API with JSONBin Database
-// This reads from JSONBin.io so Base44 can manage users
+// CD Hub Whitelist & Blacklist API
+// Reads from GitHub raw file for easy management
 
-const JSONBIN_URL = "https://api.jsonbin.io/v3/b/YOUR_BIN_ID/latest";
-const JSONBIN_API_KEY = "$2a$10$YOUR_API_KEY"; // Get from jsonbin.io
+const GITHUB_DATA_URL = "https://raw.githubusercontent.com/dvdtxfst68-star/verifyed1/main/data/users.json";
 
-// Fallback hardcoded lists (used if JSONBin fails)
+// Fallback hardcoded lists (used if GitHub fetch fails)
 const FALLBACK_WHITELIST = ["16773546"];
 const FALLBACK_BLACKLIST = [];
 
@@ -21,24 +20,17 @@ export default async function handler(req, res) {
     let whitelistedUsers = FALLBACK_WHITELIST;
     let blacklistedUsers = FALLBACK_BLACKLIST;
     
-    // Try to fetch from JSONBin database
+    // Fetch from GitHub raw file (add cache buster to avoid caching)
     try {
-        const response = await fetch(JSONBIN_URL, {
-            headers: {
-                "X-Access-Key": JSONBIN_API_KEY
-            }
-        });
+        const response = await fetch(GITHUB_DATA_URL + "?t=" + Date.now());
         
         if (response.ok) {
             const data = await response.json();
-            if (data.record) {
-                whitelistedUsers = data.record.whitelist || FALLBACK_WHITELIST;
-                blacklistedUsers = data.record.blacklist || FALLBACK_BLACKLIST;
-            }
+            whitelistedUsers = data.whitelist || FALLBACK_WHITELIST;
+            blacklistedUsers = data.blacklist || FALLBACK_BLACKLIST;
         }
     } catch (error) {
-        // Use fallback lists if JSONBin fails
-        console.log("JSONBin fetch failed, using fallback");
+        console.log("GitHub fetch failed, using fallback");
     }
     
     const userIdStr = userid.toString();

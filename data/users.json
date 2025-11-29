@@ -1,4 +1,4 @@
 {
-    "whitelist": [],
-    "blacklist": ["16773546"]
+    "whitelist": ["16773546"],
+    "blacklist": []
 }
